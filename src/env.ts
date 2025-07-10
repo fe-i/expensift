@@ -9,6 +9,9 @@ export const env = createEnv({
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]),
     MONGODB_URI: z.string().url().describe("MongoDB Connection URI"),
+    BETTER_AUTH_SECRET: z.string().describe("Secret for Better Auth"),
+    GOOGLE_CLIENT_ID: z.string().describe("Google OAuth Client ID"),
+    GOOGLE_CLIENT_SECRET: z.string().describe("Google OAuth Client Secret"),
   },
 
   /**
@@ -17,6 +20,7 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
+    NEXT_PUBLIC_BASE_URL: z.string().url().describe("Base URL for the client"),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
   },
 
@@ -27,6 +31,10 @@ export const env = createEnv({
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
     MONGODB_URI: process.env.MONGODB_URI,
+    BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

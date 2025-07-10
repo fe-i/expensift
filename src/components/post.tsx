@@ -1,40 +1,38 @@
 "use client";
-
 import { useState } from "react";
-
 import { api } from "@/trpc/react";
 
 export function LatestPost() {
-  const [latestPost] = api.post.getLatest.useSuspenseQuery();
+  const [latestPost] = api.post.getLatestMongoose.useSuspenseQuery();
 
   const utils = api.useUtils();
-  const [name, setName] = useState("");
-  const createPost = api.post.create.useMutation({
+  const [text, setText] = useState("");
+  const createPost = api.post.createMongoose.useMutation({
     onSuccess: async () => {
       await utils.post.invalidate();
-      setName("");
+      setText("");
     },
   });
 
   return (
     <div className="w-full max-w-xs">
       {latestPost ? (
-        <p className="truncate">Your most recent post: {latestPost.name}</p>
+        <p className="truncate">Your most recent post: {latestPost.text}</p>
       ) : (
         <p>You have no posts yet.</p>
       )}
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          createPost.mutate({ name });
+          createPost.mutate({ text });
         }}
         className="flex flex-col gap-2"
       >
         <input
           type="text"
           placeholder="Title"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
           className="w-full rounded-full bg-white/10 px-4 py-2 text-white"
         />
         <button
