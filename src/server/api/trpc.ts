@@ -12,7 +12,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { auth } from "@/lib/auth";
-import { db } from "@/lib/mongodb";
+import { db } from "@/lib/db";
 
 /**
  * 1. CONTEXT

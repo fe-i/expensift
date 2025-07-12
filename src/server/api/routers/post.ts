@@ -4,7 +4,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { connectDb, db } from "@/lib/mongodb";
+import { connectDb, db } from "@/lib/db";
 import { Post } from "@/models/Post";
 
 export const postRouter = createTRPCRouter({

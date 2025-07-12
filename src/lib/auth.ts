@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import { db } from "@/lib/mongodb";
+import { db } from "@/lib/db";
 import { env } from "@/env";
 
 export const auth = betterAuth({
