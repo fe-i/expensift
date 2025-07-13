@@ -1,18 +1,127 @@
-import { api, HydrateClient } from "@/trpc/server";
-import { LatestPost } from "@/components/post";
+"use client";
+import { Button } from "@/components/ui/button";
+import { useRef } from "react";
+import { useSession, signIn } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import {
+  ScanLine,
+  Sparkles,
+  Split,
+  PieChart,
+  Landmark,
+  Calculator,
+} from "lucide-react";
 
-export default async function Home() {
-  void api.post.getLatestMongoose.prefetch();
+const features = [
+  {
+    icon: ScanLine,
+    title: "Intelligent Scanning",
+    description:
+      "Instantly extract vendor, items, and totals from any receipt photo using AI.",
+  },
+  {
+    icon: Sparkles,
+    title: "Smart Categorization",
+    description:
+      "Expenses are automatically categorized to give you a clear overview of your spending.",
+  },
+
+  {
+    icon: Split,
+    title: "Flexible Bill Splitting",
+    description:
+      "Easily split bills any way you want. Assign items and let the app handle the math.",
+  },
+  {
+    icon: PieChart,
+    title: "Data Visualization",
+    description:
+      "Understand and improve your spending habits with interactive charts and AI-generated summaries.",
+  },
+  {
+    icon: Landmark,
+    title: "Proactive Budgeting",
+    description:
+      "Set budgets by category and track your progress with real-time spending data.",
+  },
+  {
+    icon: Calculator,
+    title: "Financial Planning",
+    description:
+      "Model investment growth or plan loan payoffs with our built-in calculators.",
+  },
+];
+
+export default function Home() {
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const { data: session } = useSession();
+  const router = useRouter();
 
   return (
-    <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center">
-        <div className="rounded-lg bg-gray-600 p-10 text-white">
-          <LatestPost />
+    <div className="bg-background flex min-h-screen flex-col">
+      <section className="flex min-h-[calc(100vh-4rem)] w-full flex-col items-center justify-center px-4">
+        <h1 className="text-center text-5xl font-medium tracking-tighter md:text-6xl lg:text-7xl">
+          All-In-One Expense Tracker
+          <br />
+          Split, Budget, Plan
+        </h1>
+        <p className="my-[5vh] max-w-[90vw] text-center sm:max-w-[70vw] md:max-w-[50vw] md:text-lg lg:max-w-[40vw]">
+          Expensift does more than just scan receipts.
+          <br />
+          Start by tracking your spending with AI insights, splitting expenses
+          with friends, and planning your financial future.
+        </p>
+        <div className="flex gap-4">
+          <Button
+            aria-label="Get started"
+            onClick={async () => {
+              if (session?.user) {
+                void router.push("/dashboard");
+              } else {
+                await signIn.social({
+                  provider: "google",
+                  callbackURL: "/dashboard",
+                  // newUserCallbackURL: "/welcome",
+                });
+              }
+            }}
+          >
+            Get Started
+          </Button>
+          <Button
+            variant="outline"
+            aria-label="Learn more"
+            onClick={() => {
+              featuresRef.current?.scrollIntoView({ behavior: "smooth" });
+            }}
+          >
+            Learn More
+          </Button>
         </div>
-      </main>
-    </HydrateClient>
+      </section>
+      <section
+        ref={featuresRef}
+        className="bg-muted flex min-h-[calc(100vh-4rem)] w-full flex-col items-center justify-center px-8 py-16"
+      >
+        <h2 className="mb-2 text-center text-4xl font-medium tracking-tighter md:text-5xl lg:text-6xl">
+          Key Features
+        </h2>
+        <p className="text-muted-foreground mx-auto max-w-xl text-center md:text-lg">
+          Expensift provides a powerful suite of tools to make expense
+          management effortless and accurate.
+        </p>
+        <div className="mt-8 grid gap-8 p-8 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((feature, _) => (
+            <div key={_} className="flex flex-col items-center text-center">
+              <feature.icon className="text-primary mb-2 h-8 w-8" />
+              <h3 className="font-semibold">{feature.title}</h3>
+              <p className="text-muted-foreground text-sm">
+                {feature.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
   );
 }
-
-export const dynamic = "force-dynamic";

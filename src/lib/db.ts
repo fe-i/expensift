@@ -3,7 +3,7 @@ import { MongoClient } from "mongodb";
 import _mongoose, { connect } from "mongoose";
 
 // MongoDB client for Better Auth and native queries
-const client = new MongoClient(env.MONGODB_URI);
+const client = new MongoClient(env.MONGODB_URI, { maxIdleTimeMS: 10 });
 const db = client.db();
 
 // Mongoose for application data (models, schemas, CRUD, etc.)
@@ -29,6 +29,7 @@ async function connectDb() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      maxIdleTimeMS: 10,
     };
 
     cached.promise = connect(env.MONGODB_URI, opts)

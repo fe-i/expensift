@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -17,21 +18,25 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User } from "lucide-react";
+import { LogIn, LogOut } from "lucide-react";
 import { signIn, useSession, signOut } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
 import { ColorModeToggle } from "@/components/color-mode-toggle";
 
-const links = [{ name: "Dashboard", href: "/dashboard" }];
+const links = [
+  { name: "Dashboard", href: "/dashboard" }, // overview and insights
+  { name: "Receipts", href: "/receipts" }, // expenses and splits
+  { name: "Plan", href: "/plan" }, // budgeting and calculators
+];
 
 export default function Header() {
   const pathname = usePathname();
   const { data: session, isPending } = useSession();
 
   return (
-    <header className="bg-background flex w-full items-center justify-between border-b p-6">
+    <header className="bg-background/90 fixed top-0 right-0 left-0 z-50 flex w-full items-center justify-between border-b px-6 py-4">
       <Link
         href="/"
         className="flex items-center gap-4"
@@ -42,7 +47,7 @@ export default function Header() {
           alt="Expensift"
           className="h-8 w-8"
         />
-        <span className="text-2xl font-bold">Expensift</span>
+        <span className="text-2xl font-extrabold">expensift</span>
       </Link>
       {session?.user && (
         <div className="flex items-center gap-4">
@@ -55,7 +60,7 @@ export default function Header() {
                 key={_}
                 href={link.href}
                 className={cn(
-                  "hover:bg-accent rounded-md p-2 text-sm transition-all",
+                  "hover:bg-accent rounded-md px-2 py-1 transition-all",
                   pathname === link.href && "font-semibold",
                 )}
               >
@@ -67,8 +72,8 @@ export default function Header() {
             <DropdownMenuTrigger asChild>
               <Avatar aria-label="User menu">
                 <AvatarImage
-                  src={session?.user.image ?? "https://placehold.co/32"}
-                  alt={session?.user.name ?? "User avatar"}
+                  src={session?.user.image ?? ""}
+                  alt={session?.user.name}
                 />
                 <AvatarFallback>
                   {session?.user.name.at(0)?.toUpperCase()}
@@ -87,8 +92,8 @@ export default function Header() {
                 disabled={isPending}
                 aria-label="Sign out"
               >
-                <LogOut className="h-4 w-4" />
-                <span className="text-sm">Sign Out</span>
+                <LogOut />
+                Sign Out
               </DropdownMenuItem>
               <DropdownMenuSeparator className="my-2 sm:hidden" />
               {links.map((link, _) => (
@@ -113,16 +118,25 @@ export default function Header() {
       {!session?.user && (
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline" disabled={isPending} aria-label="Sign in">
-              <User className="h-4 w-4" />
-              <span>Sign In</span>
+            <Button
+              className={cn(
+                "flex gap-2",
+                isPending && "visible sm:invisible sm:hidden",
+              )}
+              variant="outline"
+              disabled={isPending}
+              aria-label="Sign in"
+            >
+              <LogIn />
+              Sign In
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle className="text-lg md:text-xl">Sign In</DialogTitle>
               <DialogDescription className="text-sm">
-                Choose a provider to login to your account using
+                To use <strong>Expensift</strong> you must log into an existing
+                account or create one using one of the options below
               </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col items-center justify-between gap-4">
@@ -134,7 +148,6 @@ export default function Header() {
                   await signIn.social({
                     provider: "google",
                     callbackURL: "/dashboard",
-                    // errorCallbackURL: "/error",
                     // newUserCallbackURL: "/welcome",
                   });
                 }}
@@ -166,6 +179,19 @@ export default function Header() {
                 Sign in with Google
               </Button>
             </div>
+            <DialogFooter>
+              <DialogDescription className="w-full text-xs">
+                By signing in, you accept the{" "}
+                <Link href="/terms" className="hover:bg-accent font-semibold">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link href="/privacy" className="hover:bg-accent font-semibold">
+                  Privacy Policy
+                </Link>
+                .
+              </DialogDescription>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       )}
