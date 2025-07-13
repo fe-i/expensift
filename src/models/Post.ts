@@ -5,11 +5,7 @@ interface IPost extends Document {
 }
 
 const PostSchema = new Schema<IPost>({
-  text: {
-    type: String,
-    required: [true, "Please provide text for this post."],
-    maxlength: [50, "Text cannot exceed 50 characters."],
-  },
+  text: { type: String, required: true, maxlength: 50 },
 });
 
 export const Post: Model<IPost> =

@@ -4,11 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
 import Link from "next/link";
 
-export default function ProtectedPage({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function ProtectedPage({ children }: { children: React.ReactNode }) {
   const { data: session, isPending } = useSession();
   if (isPending) return <></>;
   if (!session?.user)

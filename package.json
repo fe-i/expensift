@@ -17,6 +17,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@genkit-ai/googleai": "^1.14.1",
+    "@genkit-ai/next": "^1.14.1",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dialog": "^1.1.14",
@@ -32,6 +34,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "genkit": "^1.14.1",
     "lucide-react": "^0.525.0",
     "mongoose": "^8.16.2",
     "next": "^15.2.3",
@@ -63,5 +66,10 @@
   },
   "ct3aMetadata": {
     "initVersion": "7.39.3"
-  }
+  },
+  "trustedDependencies": [
+    "@tailwindcss/oxide",
+    "protobufjs",
+    "unrs-resolver"
+  ]
 }

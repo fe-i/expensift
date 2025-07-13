@@ -12,6 +12,7 @@ export const env = createEnv({
     BETTER_AUTH_SECRET: z.string().describe("Secret for Better Auth"),
     GOOGLE_CLIENT_ID: z.string().describe("Google OAuth Client ID"),
     GOOGLE_CLIENT_SECRET: z.string().describe("Google OAuth Client Secret"),
+    GEMINI_API_KEY: z.string().describe("API key for Gemini AI"),
   },
 
   /**
@@ -34,6 +35,7 @@ export const env = createEnv({
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },

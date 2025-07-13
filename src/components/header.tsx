@@ -26,9 +26,9 @@ import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
 import { ColorModeToggle } from "@/components/color-mode-toggle";
 
 const links = [
-  { name: "Dashboard", href: "/dashboard" }, // overview and insights
-  { name: "Receipts", href: "/receipts" }, // expenses and splits
-  { name: "Plan", href: "/plan" }, // budgeting and calculators
+  { name: "Dashboard", href: "/dashboard" },
+  { name: "Receipts", href: "/receipts" },
+  { name: "Plan", href: "/plan" },
 ];
 
 export default function Header() {
@@ -61,7 +61,7 @@ export default function Header() {
                 href={link.href}
                 className={cn(
                   "hover:bg-accent rounded-md px-2 py-1 transition-all",
-                  pathname === link.href && "font-semibold",
+                  pathname === link.href && "font-bold",
                 )}
               >
                 {link.name}
@@ -102,7 +102,7 @@ export default function Header() {
                     href={link.href}
                     className={cn(
                       "visible sm:invisible sm:hidden",
-                      pathname === link.href && "font-semibold",
+                      pathname === link.href && "font-bold",
                     )}
                   >
                     {link.name}
