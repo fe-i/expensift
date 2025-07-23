@@ -1,42 +1,29 @@
-import {
-  UtensilsCrossed,
-  Car,
-  Lightbulb,
-  Ticket,
-  ShoppingBag,
-  Plane,
-  Package,
-  PiggyBank,
-} from "lucide-react";
-
-// Receipt model definition
 import { Schema, model, models, type Document, type Model } from "mongoose";
-import type React from "react";
 
 export interface ILineItem extends Document {
   name: string;
   quantity: number;
-  price: number;
+  unitPrice: number;
   assignedTo?: string[];
 }
 
 const LineItemSchema: Schema = new Schema({
-  name: { type: String, required: true },
-  quantity: { type: Number, required: true },
-  price: { type: Number, required: true },
-  assignedTo: [{ type: String }],
+  name: { type: String, required: true, maxlength: 100 },
+  quantity: { type: Number, required: true, min: 1, max: 1000 },
+  unitPrice: { type: Number, required: true, min: 0, max: 10000 },
+  assignedTo: { type: [String], default: [] },
 });
 
-export interface IExtras extends Document {
+export interface ISurcharge extends Document {
   description: string;
   type: "fixed" | "percentage";
   amount: number;
 }
 
-const ExtrasSchema: Schema = new Schema({
-  description: { type: String, required: true },
+const SurchargeSchema: Schema = new Schema({
+  description: { type: String, required: true, maxlength: 100 },
   type: { type: String, enum: ["fixed", "percentage"], required: true },
-  amount: { type: Number, required: true },
+  amount: { type: Number, required: true, min: -10000, max: 10000 },
 });
 
 export interface ISplitUser extends Document {
@@ -45,74 +32,69 @@ export interface ISplitUser extends Document {
   paid?: boolean;
   assignedItems?: string[];
   subtotal?: number;
-  extras?: number;
+  surcharge?: number;
   tax?: number;
   tip?: number;
 }
 
 const SplitUserSchema: Schema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: true, maxlength: 50 },
   isPaying: { type: Boolean },
   paid: { type: Boolean },
-  assignedItems: [{ type: String }],
-  subtotal: { type: Number },
-  extras: { type: Number },
-  tax: { type: Number },
-  tip: { type: Number },
+  assignedItems: { type: [String], default: [] },
+  subtotal: { type: Number, min: 0, max: 10000 },
+  surcharge: { type: Number, min: -10000, max: 10000 },
+  tax: { type: Number, min: 0, max: 10000 },
+  tip: { type: Number, min: 0, max: 10000 },
 });
 
 export interface IReceipt extends Document {
-  vendor: string;
-  date: Date;
+  merchant: string;
+  date: string;
   category: string;
   lineItems: ILineItem[];
-  extras?: IExtras[];
+  surcharges?: ISurcharge[];
   taxType?: "fixed" | "percentage";
-  taxAmount?: number;
+  taxValue?: number;
   tipType?: "fixed" | "percentage";
-  tipAmount?: number;
+  tipValue?: number;
   splitMode?: "simple" | "advanced";
   splitUsers?: ISplitUser[];
-  user: string;
+  userId: string;
 }
 
 const ReceiptSchema: Schema = new Schema({
-  vendor: { type: String, required: true },
-  date: { type: Date, required: true },
-  category: { type: String, required: true },
-  lineItems: [LineItemSchema],
-  extras: [ExtrasSchema],
+  merchant: { type: String, required: true, maxlength: 50 },
+  date: { type: String, required: true },
+  category: { type: String, required: true, maxlength: 50 },
+  lineItems: {
+    type: [LineItemSchema],
+    validate: {
+      validator: (val: unknown[]) =>
+        Array.isArray(val) && val.length >= 1 && val.length <= 500,
+    },
+  },
+  surcharges: {
+    type: [SurchargeSchema],
+    validate: {
+      validator: (val: unknown[]) =>
+        !val || (Array.isArray(val) && val.length <= 5),
+    },
+  },
   taxType: { type: String, enum: ["fixed", "percentage"] },
-  taxAmount: { type: Number },
+  taxValue: { type: Number, min: 0, max: 10000 },
   tipType: { type: String, enum: ["fixed", "percentage"] },
-  tipAmount: { type: Number },
+  tipValue: { type: Number, min: 0, max: 10000 },
   splitMode: { type: String, enum: ["simple", "advanced"] },
-  splitUsers: [SplitUserSchema],
-  user: { type: String, required: true },
+  splitUsers: {
+    type: [SplitUserSchema],
+    validate: {
+      validator: (val: unknown[]) =>
+        !val || (Array.isArray(val) && val.length <= 20),
+    },
+  },
+  userId: { type: String, required: true },
 });
 
 export const Receipt: Model<IReceipt> =
   models.Receipt ?? model<IReceipt>("Receipt", ReceiptSchema);
-
-// Expense categories and icons
-export const ExpenseCategories = [
-  "Food",
-  "Transport",
-  "Utilities",
-  "Entertainment",
-  "Shopping",
-  "Travel",
-  "Savings",
-  "Miscellaneous",
-] as const;
-
-export const categoryIcons: Record<string, React.FC<{ className?: string }>> = {
-  Food: UtensilsCrossed,
-  Transport: Car,
-  Utilities: Lightbulb,
-  Entertainment: Ticket,
-  Shopping: ShoppingBag,
-  Travel: Plane,
-  Savings: PiggyBank,
-  Miscellaneous: Package,
-};

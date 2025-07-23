@@ -17,7 +17,7 @@ const features = [
     icon: ScanLine,
     title: "Intelligent Scanning",
     description:
-      "Instantly extract vendor, items, and totals from any receipt photo using AI.",
+      "Instantly extract merchant, items, and totals from any receipt photo using AI.",
   },
   {
     icon: Sparkles,
@@ -58,7 +58,7 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <div className="bg-background flex min-h-screen flex-col">
+    <div className="bg-background flex flex-col">
       <section className="flex min-h-[calc(100vh-4rem)] w-full flex-col items-center justify-center px-4">
         <h1 className="text-center text-5xl font-medium tracking-tighter md:text-6xl lg:text-7xl">
           All-In-One Expense Tracker
