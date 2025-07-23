@@ -34,7 +34,7 @@ const ReceiptSchema = z.object({
       z.object({
         description: z.string().min(1).max(100),
         type: z.enum(["fixed", "percentage"]),
-        amount: z.number().min(-10000).max(10000),
+        value: z.number().min(-10000).max(10000),
       }),
     )
     .max(5)
@@ -75,7 +75,7 @@ Each receipt must have this structure:
     {
       "description": "string (max 100 chars)",
       "type": "fixed" | "percentage",
-      "amount": number (-10000 to 10000)
+      "value": number (-10000 to 10000)
     }
   ],
   "taxType": "fixed" | "percentage",
@@ -98,7 +98,7 @@ Do not include fields that are not present on the receipt.
     - For each purchased item, output a **stringified JSON object** with "name", "quantity", and "unitPrice" fields.
     - If multiple items on the receipt are the same (same name and unit price), merge them into a single line item and sum their quantity.
   - **surcharges**: List extra charges/discounts if present. Omit if none.
-    - "amount" should be negative for discounts.
+    - "value" should be negative for discounts and must be the percentage value (e.g. 7.5 for 7.5%). If "fixed", use the currency amount.
   - **taxType**, **taxValue**, **tipType**, **tipValue**: Include only if present on the receipt.
     - If taxType or tipType is "percentage", taxValue or tipValue must be the percentage value (e.g. 7.5 for 7.5%). If "fixed", use the currency amount.
 

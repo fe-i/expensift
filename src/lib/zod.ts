@@ -20,7 +20,7 @@ export const zodReceiptSchema = z.object({
       z.object({
         description: z.string().min(1).max(100),
         type: z.enum(["fixed", "percentage"]),
-        amount: z.number().min(-10000).max(10000),
+        value: z.number().min(-10000).max(10000),
       }),
     )
     .max(5)

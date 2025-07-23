@@ -27,7 +27,6 @@ import { ColorModeToggle } from "@/components/color-mode-toggle";
 
 const links = [
   { name: "Dashboard", href: "/dashboard" },
-  { name: "Receipts", href: "/receipts" },
   { name: "Plan", href: "/plan" },
 ];
 
@@ -148,7 +147,6 @@ export default function Header() {
                   await signIn.social({
                     provider: "google",
                     callbackURL: "/dashboard",
-                    // newUserCallbackURL: "/welcome",
                   });
                 }}
                 aria-label="Sign in with Google"

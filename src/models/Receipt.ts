@@ -17,13 +17,13 @@ const LineItemSchema: Schema = new Schema({
 export interface ISurcharge extends Document {
   description: string;
   type: "fixed" | "percentage";
-  amount: number;
+  value: number;
 }
 
 const SurchargeSchema: Schema = new Schema({
   description: { type: String, required: true, maxlength: 100 },
   type: { type: String, enum: ["fixed", "percentage"], required: true },
-  amount: { type: Number, required: true, min: -10000, max: 10000 },
+  value: { type: Number, required: true, min: -10000, max: 10000 },
 });
 
 export interface ISplitUser extends Document {

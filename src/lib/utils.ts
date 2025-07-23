@@ -61,13 +61,15 @@ export const categoryIcons: Record<
 export function calculateTotal(
   receipt: z.infer<typeof zodReceiptSchema>,
 ): number {
+  if (!receipt.lineItems || receipt.lineItems.length === 0) return 0;
+
   const lineItemsTotal = receipt.lineItems.reduce(
     (sum, item) => sum + item.quantity * item.unitPrice,
     0,
   );
 
   const surchargesTotal = (receipt.surcharges ?? []).reduce(
-    (sum, surcharge) => sum + surcharge.amount,
+    (sum, surcharge) => sum + surcharge.value,
     0,
   );
 
