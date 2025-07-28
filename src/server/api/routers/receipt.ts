@@ -1,18 +1,12 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { Receipt } from "@/models/Receipt";
-import { zodReceiptSchema } from "@/lib/zod";
 import { calculateTotal } from "@/lib/utils";
+import { zodReceiptInputSchema } from "@/lib/types";
 
 export const receiptRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(
-      zodReceiptSchema.omit({
-        splitMode: true,
-        splitUsers: true,
-        userId: true,
-      }),
-    )
+    .input(zodReceiptInputSchema)
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
       const receipt = await Receipt.create({
@@ -23,15 +17,7 @@ export const receiptRouter = createTRPCRouter({
     }),
 
   createMany: protectedProcedure
-    .input(
-      z.array(
-        zodReceiptSchema.omit({
-          splitMode: true,
-          splitUsers: true,
-          userId: true,
-        }),
-      ),
-    )
+    .input(z.array(zodReceiptInputSchema))
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
       const receiptsWithUser = input.map((receipt) => ({
@@ -43,59 +29,57 @@ export const receiptRouter = createTRPCRouter({
     }),
 
   list: protectedProcedure
-    .input(z.object({ limit: z.number().min(1).max(100).optional() }))
-    .query(async ({ ctx, input }) => {
-      const userId = ctx.session.user.id;
-      const query = Receipt.find({ userId }).sort({ date: "desc" });
-      if (input.limit) query.limit(input.limit);
-      return await query.exec();
-    }),
-
-  list2: protectedProcedure
     .input(
       z.object({
-        limit: z.number().min(1).max(100).optional(),
         page: z.number().min(1).optional(),
-        pageSize: z.number().min(1).max(100).optional(),
-        merchant: z.string().optional(),
-        category: z.string().optional(),
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
+        pageSize: z.number().min(1).max(50).optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
-      const query: Record<string, unknown> = { userId };
-      if (input.merchant) query.merchant = input.merchant;
-      if (input.category) query.category = input.category;
-      if (input.startDate)
-        (query.date as unknown as { $gte: Date }).$gte = new Date(
-          input.startDate,
-        );
-      if (input.endDate)
-        (query.date as unknown as { $lte: Date }).$lte = new Date(
-          input.endDate,
-        );
+      const page = input.page ?? 1;
+      const pageSize = input.pageSize ?? 50;
+      const skip = (page - 1) * pageSize;
 
-      let dbQuery = Receipt.find(query).sort({ date: "desc" });
+      const match = { userId };
+      const allReceipts = await Receipt.find(match).lean();
+      const grandTotal = allReceipts.reduce(
+        (sum, receipt) => sum + calculateTotal(receipt),
+        0,
+      );
 
-      let page = input.page ?? 1;
-      let pageSize = input.pageSize ?? input.limit ?? 20;
-      if (input.page || input.pageSize) {
-        dbQuery = dbQuery.skip((page - 1) * pageSize).limit(pageSize);
-      } else if (input.limit) {
-        dbQuery = dbQuery.limit(input.limit);
+      const totalsByCategory: Record<string, number> = {};
+      for (const receipt of allReceipts) {
+        const total = calculateTotal(receipt);
+        const category = receipt.category;
+        totalsByCategory[category] = (totalsByCategory[category] ?? 0) + total;
       }
 
-      const receipts = await dbQuery.exec();
-      const total = await Receipt.countDocuments(query);
+      const categoryBreakdown = Object.entries(totalsByCategory).map(
+        ([category, total]) => ({
+          category,
+          total,
+          percentage: grandTotal ? (total / grandTotal) * 100 : 0,
+        }),
+      );
+
+      const receipts = await Receipt.find(match)
+        .sort({ date: -1 })
+        .skip(skip)
+        .limit(pageSize)
+        .lean();
+
+      const receiptsWithTotal = receipts.map((receipt) => ({
+        ...receipt,
+        total: calculateTotal(receipt),
+      }));
 
       return {
-        receipts,
-        total,
+        receipts: receiptsWithTotal,
+        grandTotal,
+        categoryBreakdown,
         page,
-        pageSize,
-        totalPages: Math.ceil(total / pageSize),
+        totalPages: Math.ceil(allReceipts.length / pageSize),
       };
     }),
 
@@ -103,7 +87,7 @@ export const receiptRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        data: zodReceiptSchema.partial().omit({ userId: true }),
+        data: zodReceiptInputSchema.partial(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -113,8 +97,7 @@ export const receiptRouter = createTRPCRouter({
         { $set: input.data },
         { new: true },
       );
-      if (!receipt) throw new Error("Receipt not found or not authorized");
-      return receipt;
+      return receipt ?? null;
     }),
 
   delete: protectedProcedure
@@ -122,21 +105,7 @@ export const receiptRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
       const result = await Receipt.deleteOne({ _id: input.id, userId });
-      if (result.deletedCount === 0)
-        throw new Error("Receipt not found or not authorized");
-      return { success: true };
-    }),
-
-  deleteMany: protectedProcedure
-    .input(z.object({ ids: z.array(z.string()).min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      const userId = ctx.session.user.id;
-      const result = await Receipt.deleteMany({
-        _id: { $in: input.ids },
-        userId,
-      });
-      if (result.deletedCount === 0)
-        throw new Error("No receipts deleted or not authorized");
+      if (result.deletedCount === 0) return { success: false, deletedCount: 0 };
       return { success: true, deletedCount: result.deletedCount };
     }),
 
@@ -144,33 +113,5 @@ export const receiptRouter = createTRPCRouter({
     const userId = ctx.session.user.id;
     const result = await Receipt.deleteMany({ userId });
     return { success: true, deletedCount: result.deletedCount };
-  }),
-
-  aggregateTotals: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id;
-    const receipts = await Receipt.find({ userId }).lean();
-
-    const totalsByCategory: Record<string, number> = {};
-    let grandTotal = 0;
-
-    for (const receipt of receipts) {
-      const total = calculateTotal(receipt);
-      const category = receipt.category;
-      totalsByCategory[category] = (totalsByCategory[category] ?? 0) + total;
-      grandTotal += total;
-    }
-
-    const breakdown = Object.entries(totalsByCategory).map(
-      ([category, total]) => ({
-        category,
-        total,
-        percentage: grandTotal ? (total / grandTotal) * 100 : 0,
-      }),
-    );
-
-    return {
-      grandTotal,
-      breakdown,
-    };
   }),
 });
