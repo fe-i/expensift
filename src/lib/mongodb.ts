@@ -1,6 +1,7 @@
 import { env } from "@/env";
 import { MongoClient } from "mongodb";
-import _mongoose, { connect } from "mongoose";
+import type _mongoose from "mongoose";
+import { connect } from "mongoose";
 
 // MongoDB client for Better Auth and native queries
 const client = new MongoClient(env.MONGODB_URI, { maxIdleTimeMS: 10 });

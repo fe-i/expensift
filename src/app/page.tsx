@@ -1,16 +1,8 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useRef } from "react";
-import { useSession, signIn } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import {
-  ScanLine,
-  Sparkles,
-  Split,
-  PieChart,
-  Landmark,
-  Calculator,
-} from "lucide-react";
+import { ScanLine, Sparkles, Split, PieChart } from "lucide-react";
 
 const features = [
   {
@@ -38,23 +30,10 @@ const features = [
     description:
       "Understand and improve your spending habits with interactive charts and AI-generated summaries.",
   },
-  {
-    icon: Landmark,
-    title: "Proactive Budgeting",
-    description:
-      "Set budgets by category and track your progress with real-time spending data.",
-  },
-  {
-    icon: Calculator,
-    title: "Financial Planning",
-    description:
-      "Model investment growth or plan loan payoffs with our built-in calculators.",
-  },
 ];
 
 export default function Home() {
   const featuresRef = useRef<HTMLDivElement>(null);
-  const { data: session } = useSession();
   const router = useRouter();
 
   return (
@@ -63,28 +42,18 @@ export default function Home() {
         <h1 className="text-center text-5xl font-medium tracking-tighter md:text-6xl lg:text-7xl">
           All-In-One Expense Tracker
           <br />
-          Split, Budget, Plan
+          Scan, Split, Share
         </h1>
         <p className="my-[5vh] max-w-[90vw] text-center sm:max-w-[70vw] md:max-w-[50vw] md:text-lg lg:max-w-[40vw]">
-          Expensift does more than just scan receipts.
+          Expensift makes expense management effortless.
           <br />
-          Start by tracking your spending with AI insights, splitting expenses
-          with friends, and planning your financial future.
+          Upload your receipts for instant AI parsing, split bills with friends,
+          and visualize your spending with interactive charts.
         </p>
         <div className="flex gap-4">
           <Button
             aria-label="Get started"
-            onClick={async () => {
-              if (session?.user) {
-                void router.push("/dashboard");
-              } else {
-                await signIn.social({
-                  provider: "google",
-                  callbackURL: "/dashboard",
-                  // newUserCallbackURL: "/welcome",
-                });
-              }
-            }}
+            onClick={() => void router.push("/dashboard")}
           >
             Get Started
           </Button>
@@ -107,10 +76,10 @@ export default function Home() {
           Key Features
         </h2>
         <p className="text-muted-foreground mx-auto max-w-xl text-center md:text-lg">
-          Expensift provides a powerful suite of tools to make expense
+          Expensift provides a powerful suite of features to make expense
           management effortless and accurate.
         </p>
-        <div className="mt-8 grid gap-8 p-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-8 sm:grid-cols-2 sm:px-64">
           {features.map((feature, _) => (
             <div key={_} className="flex flex-col items-center text-center">
               <feature.icon className="text-primary mb-2 h-8 w-8" />

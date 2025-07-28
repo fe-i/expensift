@@ -3,7 +3,7 @@ import { Manrope } from "next/font/google";
 import { TRPCReactProvider } from "@/trpc/react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import Header from "@/components/header";
+import { Header } from "@/components/header";
 
 export { metadata } from "@/lib/metadata";
 
