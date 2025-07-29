@@ -10,7 +10,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Loader2, Image, XCircle, FileUp, Receipt } from "lucide-react";
+import {
+  Loader2,
+  Image as ImageIcon,
+  XCircle,
+  FileUp,
+  Receipt,
+  UploadCloud,
+} from "lucide-react";
 import {
   extractReceiptData,
   type ExtractReceiptDataOutput,
@@ -18,21 +25,25 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const MAX_FILES = 3;
-const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_MB = 20;
 
 export function ReceiptUploader() {
-  const utils = api.useUtils();
-  const createMany = api.receipt.createMany.useMutation({
-    onSuccess: async () => {
-      await utils.receipt.list.invalidate();
-    },
-  });
   const [isProcessing, setIsProcessing] = useState(false);
   const [stagedFiles, setStagedFiles] = useState<File[]>([]);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const utils = api.useUtils();
+  const { mutateAsync: createMany } = api.receipt.createMany.useMutation({
+    onSuccess: async () => await utils.receipt.list.invalidate(),
+  });
 
   const handleFilesSelected = useCallback(
     (files: FileList | null) => {
@@ -69,10 +80,8 @@ export function ReceiptUploader() {
     [stagedFiles],
   );
 
-  const removeStagedFile = (indexToRemove: number) => {
-    setStagedFiles((prev) =>
-      prev.filter((_, index) => index !== indexToRemove),
-    );
+  const removeStagedFile = (idx: number) => {
+    setStagedFiles((prev) => prev.filter((_, index) => index !== idx));
   };
 
   const processFiles = useCallback(async () => {
@@ -99,12 +108,12 @@ export function ReceiptUploader() {
           });
           const receipts = await extractReceiptData({ photoDataUri: dataUri });
           allReceipts.push(...receipts);
-        } catch (error: unknown) {
+        } catch {
           errorFiles.push(file.name);
         }
       }
       if (allReceipts.length > 0) {
-        await createMany.mutateAsync(allReceipts);
+        await createMany(allReceipts);
       }
       if (allReceipts.length > 0) {
         toast.success("Receipts uploaded", {
@@ -129,9 +138,7 @@ export function ReceiptUploader() {
     }
   };
 
-  const handleButtonClick = () => {
-    fileInputRef.current?.click();
-  };
+  const handleButtonClick = () => fileInputRef.current?.click();
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -171,7 +178,10 @@ export function ReceiptUploader() {
   return (
     <Card className="shadow">
       <CardHeader>
-        <CardTitle className="text-xl">Capture Receipt</CardTitle>
+        <CardTitle className="flex items-center gap-2 text-xl">
+          <UploadCloud />
+          Upload Receipt
+        </CardTitle>
         <CardDescription>
           Upload, drop, or paste one or more receipt images (max {MAX_FILES}).
         </CardDescription>
@@ -202,15 +212,17 @@ export function ReceiptUploader() {
             "border-muted-foreground flex h-72 flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed text-center transition-all",
             isDraggingOver && "bg-muted",
             stagedFiles.length < MAX_FILES && "cursor-pointer",
-            stagedFiles.length >= MAX_FILES && "cursor-not-allowed",
+            (stagedFiles.length >= MAX_FILES || isProcessing) &&
+              "cursor-not-allowed",
           )}
         >
           {isProcessing ? (
             <>
-              <Receipt />
-              <p className="text-muted-foreground text-sm">
-                Analyzing receipt{stagedFiles.length === 1 ? "" : "s"}...
-              </p>
+              <Receipt className="animate-bounce" />
+              <span className="text-muted-foreground text-sm">
+                Analyzing receipt
+                {stagedFiles.length === 1 ? "" : "s"} and extracting data...
+              </span>
             </>
           ) : stagedFiles.length > 0 ? (
             stagedFiles.map((file, _) => (
@@ -221,23 +233,28 @@ export function ReceiptUploader() {
                 <span className="max-w-32 truncate" title={file.name}>
                   {file.name}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={`Remove ${file.name}`}
-                  className="hover:text-destructive h-4 w-4 rounded-full transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeStagedFile(_);
-                  }}
-                >
-                  <XCircle />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Remove ${file.name}`}
+                      className="hover:text-destructive h-4 w-4 rounded-full transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeStagedFile(_);
+                      }}
+                    >
+                      <XCircle />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Remove {file.name}</TooltipContent>
+                </Tooltip>
               </div>
             ))
           ) : (
             <div className="text-muted-foreground flex flex-col items-center justify-center gap-2">
-              <Image className="h-8 w-8" />
+              <ImageIcon className="h-8 w-8" />
               <p className="flex items-center justify-center text-sm">
                 {isDraggingOver
                   ? "Drop image here."
@@ -246,6 +263,7 @@ export function ReceiptUploader() {
             </div>
           )}
           <Input
+            aria-label="Upload receipt image"
             type="file"
             accept="image/*"
             className="hidden"
@@ -256,7 +274,7 @@ export function ReceiptUploader() {
           />
         </div>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex flex-col items-start gap-2">
         <Button
           onClick={processFiles}
           disabled={isProcessing || stagedFiles.length === 0}
@@ -276,6 +294,9 @@ export function ReceiptUploader() {
             </>
           )}
         </Button>
+        <CardDescription className="text-xs">
+          Note: Images are not stored; only extracted receipt data is saved.
+        </CardDescription>
       </CardFooter>
     </Card>
   );

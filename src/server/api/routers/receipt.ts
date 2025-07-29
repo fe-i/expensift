@@ -83,6 +83,33 @@ export const receiptRouter = createTRPCRouter({
       };
     }),
 
+  listSplits: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).optional(),
+        pageSize: z.number().min(1).max(50).optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const page = input.page ?? 1;
+      const pageSize = input.pageSize ?? 25;
+      const skip = (page - 1) * pageSize;
+
+      const [receipts, totalCount] = await Promise.all([
+        Receipt.find({ userId, splits: { $exists: true, $ne: [] } })
+          .skip(skip)
+          .limit(pageSize)
+          .lean(),
+        Receipt.countDocuments({ userId, splits: { $exists: true, $ne: [] } }),
+      ]);
+
+      return {
+        receipts,
+        totalPages: Math.ceil(totalCount / pageSize),
+      };
+    }),
+
   update: protectedProcedure
     .input(
       z.object({

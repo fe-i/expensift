@@ -16,10 +16,7 @@ declare global {
 }
 
 let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
+if (!cached) cached = global.mongoose = { conn: null, promise: null };
 
 async function connectDb() {
   if (cached.conn) {

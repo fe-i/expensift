@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function NotFound() {
   return (
@@ -9,12 +14,17 @@ export default function NotFound() {
       <p className="text-muted-foreground">
         Sorry, the page you are looking for does not exist.
       </p>
-      <Button asChild variant="outline">
-        <Link href="/">
-          <Home />
-          Return to homepage
-        </Link>
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button asChild variant="outline" aria-label="Return to homepage">
+            <Link href="/">
+              <Home />
+              Return to homepage
+            </Link>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Return to homepage</TooltipContent>
+      </Tooltip>
     </div>
   );
 }

@@ -1,29 +1,35 @@
-# Create T3 App
+# Expensift
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+> Effortlessly track, scan, and split your expenses with AI. Snap a photo of any receipt and let Expensift extract all the details, organize, categorize, and split expenses with friends or colleagues.
 
-## What's next? How do I make an app with this?
+## Key Features
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- **📸 AI Receipt Scanning**: Instantly extract merchant, date, items, and totals from any receipt photo using advanced AI.
+- **🧠 Automatic Categorization**: Expenses are auto-categorized for a clear overview of your spending.
+- **🗂️ Manual Entry**: Add receipts manually when needed for full control.
+- **🧾 Receipt List**: View and manage all your receipts in one place.
+- **➗ Expense Splitting**: Split receipts and expenses with others: choose equal or itemized splits, and assign items to specific people.
+- **🔒 Secure & Private**: All data is securely stored in MongoDB. Access your information from any device after login.
+- **🖥️ Responsive UI**: Works great on desktop and mobile, with a clean, modern interface.
+- **📱 PWA Support**: Install Expensift on your device for an app-like experience (Add to Home Screen on iOS/Android).
+- **🔄 Edit & Adjust**: Modify any detail after scanning; edit line items, tax, tip, and more.
+- **👥 User Authentication**: Secure login and protected pages for your data.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Getting Started
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+### Running Locally
 
-## Learn More
+```bash
+bun install
+bun run dev
+```
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+### Environment Variables
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+Copy `.env.example` to `.env` and fill in required values.
 
-## How do I deploy this?
+## License
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+MIT
