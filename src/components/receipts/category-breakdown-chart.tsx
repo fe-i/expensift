@@ -7,7 +7,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { CATEGORY_ICONS, CATEGORY_COLORS } from "@/lib/utils";
-import { Package } from "lucide-react";
+import { Package, PieChartIcon } from "lucide-react";
 import currency from "currency.js";
 import { useMemo } from "react";
 import {
@@ -66,6 +66,14 @@ export function CategoryBreakdownChart({
       <CardContent>
         {isLoading ? (
           <Skeleton className="h-88 w-full" />
+        ) : categoryBreakdown.length === 0 ? (
+          <div className="flex size-full h-88 flex-col items-center justify-center text-center">
+            <PieChartIcon className="text-muted-foreground mb-4 size-16" />
+            <h4 className="text-lg font-extrabold">No spending data</h4>
+            <p className="text-muted-foreground text-sm">
+              Upload receipts to see your spending breakdown.
+            </p>
+          </div>
         ) : (
           <ChartContainer
             config={chartConfig}

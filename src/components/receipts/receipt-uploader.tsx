@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/tooltip";
 
 const MAX_FILES = 3;
+const MAX_RECEIPTS_PER_IMAGE = 3;
 const MAX_FILE_SIZE_MB = 20;
 
 export function ReceiptUploader() {
@@ -52,7 +53,7 @@ export function ReceiptUploader() {
         const totalFiles = stagedFiles.length + filesArray.length;
         if (totalFiles > MAX_FILES) {
           toast.error("Upload limit", {
-            description: `Max ${MAX_FILES} images at a time. Each image can have up to 5 receipts.`,
+            description: `Max ${MAX_FILES} images at a time. Each image can have up to ${MAX_RECEIPTS_PER_IMAGE} receipts.`,
           });
           return;
         }
