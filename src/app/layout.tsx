@@ -44,7 +44,7 @@ export default function RootLayout({
               Copyright © {new Date().getFullYear()} Expensift. All rights
               reserved.
             </footer>
-            <Toaster />
+            <Toaster closeButton />
           </TRPCReactProvider>
         </ThemeProvider>
       </body>

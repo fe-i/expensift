@@ -3,8 +3,14 @@ import { MongoClient } from "mongodb";
 import type _mongoose from "mongoose";
 import { connect } from "mongoose";
 
+const options = {
+  maxPoolSize: 1,
+  maxIdleTimeMS: 10000,
+  serverSelectionTimeoutMS: 5000,
+};
+
 // MongoDB client for Better Auth and native queries
-const client = new MongoClient(env.MONGODB_URI, { maxIdleTimeMS: 10 });
+const client = new MongoClient(env.MONGODB_URI, options);
 const db = client.db();
 
 // Mongoose for application data (models, schemas, CRUD, etc.)
@@ -27,7 +33,9 @@ async function connectDb() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      maxIdleTimeMS: 10,
+      maxPoolSize: 1,
+      maxIdleTimeMS: 10000,
+      serverSelectionTimeoutMS: 5000,
     };
 
     cached.promise = connect(env.MONGODB_URI, opts)
