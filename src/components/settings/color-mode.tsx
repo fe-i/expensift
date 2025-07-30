@@ -17,7 +17,7 @@ export function ColorMode() {
         <RadioGroupItem value="light" id="light" className="peer sr-only" />
         <Label
           htmlFor="light"
-          className="border-muted bg-popover hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary flex flex-col items-center justify-between rounded-md border-2 p-2"
+          className="border-muted bg-popover hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary flex cursor-pointer flex-col items-center justify-between rounded-md border-2 p-2"
         >
           <Sun />
           Light
@@ -28,7 +28,7 @@ export function ColorMode() {
         <RadioGroupItem value="dark" id="dark" className="peer sr-only" />
         <Label
           htmlFor="dark"
-          className="border-muted bg-popover hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary flex flex-col items-center justify-between rounded-md border-2 p-2"
+          className="border-muted bg-popover hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary flex cursor-pointer flex-col items-center justify-between rounded-md border-2 p-2"
         >
           <Moon />
           Dark
@@ -39,7 +39,7 @@ export function ColorMode() {
         <RadioGroupItem value="system" id="system" className="peer sr-only" />
         <Label
           htmlFor="system"
-          className="border-muted bg-popover hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary flex flex-col items-center justify-between rounded-md border-2 p-2"
+          className="border-muted bg-popover hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary flex cursor-pointer flex-col items-center justify-between rounded-md border-2 p-2"
         >
           <Monitor />
           System

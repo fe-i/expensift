@@ -27,6 +27,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import Image from "next/image";
 
 const LINKS = [
   { href: "/dashboard", label: "Dashboard", icon: <Home /> },
@@ -80,20 +81,14 @@ export function Header() {
       className="bg-background/90 fixed top-0 right-0 left-0 z-50 flex w-full items-center justify-between border-b px-4 py-3"
       aria-label="Main header"
     >
-      <div className="flex items-center gap-2">
-        <Link
-          href="/"
-          className="flex items-center gap-3"
-          aria-label="Go to home"
-        >
-          <img
-            src="https://placehold.co/32"
-            alt="Expensift logo"
-            className="h-8 w-8"
-          />
-          <span className="text-2xl font-extrabold">expensift</span>
-        </Link>
-      </div>
+      <Link href="/" aria-label="Go to home">
+        <Image
+          src="/logo.svg"
+          alt="Expensift logo"
+          width={152 * 1.1}
+          height={28 * 1.1}
+        />
+      </Link>
       {session?.user ? (
         <Sheet>
           <SheetTrigger asChild>

@@ -26,7 +26,7 @@ export default function RootLayout({
           content="black-translucent"
         />
         <meta name="apple-mobile-web-app-title" content="Expensift" />
-        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <link rel="apple-touch-icon" href="/icons/icon-192-bg.png" />
       </head>
       <body>
         <ThemeProvider
@@ -40,7 +40,7 @@ export default function RootLayout({
               <Header />
               {children}
             </main>
-            <footer className="text-muted-foreground bg-background w-full border-t py-4 text-center text-sm">
+            <footer className="text-muted-foreground bg-background border-border w-full border-t py-4 text-center text-sm">
               Copyright © {new Date().getFullYear()} Expensift. All rights
               reserved.
             </footer>
