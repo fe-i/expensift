@@ -1,5 +1,5 @@
 "use client";
-import { Pie, PieChart, Cell, Legend, ResponsiveContainer } from "recharts";
+import { Pie, PieChart, Cell, Legend } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -79,78 +79,76 @@ export function CategoryBreakdownChart({
             config={chartConfig}
             className="aspect-square min-h-[20rem] w-full sm:aspect-video"
           >
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <ChartTooltip
-                  content={
-                    <ChartTooltipContent
-                      formatter={(value, name, props) => {
-                        const category = name as keyof typeof chartConfig;
+            <PieChart>
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    formatter={(value, name, props) => {
+                      const category = name as keyof typeof chartConfig;
+                      const config = chartConfig[category];
+                      const Icon = config?.icon ?? Package;
+                      const pct =
+                        (props as { payload: { percentage: number } }).payload
+                          .percentage ?? 0;
+                      return (
+                        <div className="flex items-center gap-2.5">
+                          <Icon className="size-4" />
+                          <div className="flex flex-col justify-between gap-0.5">
+                            <span className="font-bold">{category}</span>
+                            <span className="text-xs">
+                              {currency(Number(value)).format()} (
+                              {pct.toFixed(2)}
+                              %)
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
+                }
+              />
+              <Pie
+                data={chartData}
+                dataKey="total"
+                nameKey="category"
+                innerRadius="40%"
+                outerRadius="80%"
+              >
+                {chartData.map((entry, _) => (
+                  <Cell
+                    key={_}
+                    fill={chartConfig[entry.category]?.color}
+                    aria-label={entry.category}
+                  />
+                ))}
+              </Pie>
+              <Legend
+                content={({ payload }) => {
+                  return (
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                      {payload?.map((entry, _) => {
+                        const category =
+                          entry.value as keyof typeof chartConfig;
                         const config = chartConfig[category];
                         const Icon = config?.icon ?? Package;
-                        const pct =
-                          (props as { payload: { percentage: number } }).payload
-                            .percentage ?? 0;
                         return (
-                          <div className="flex items-center gap-2.5">
-                            <Icon className="size-4" />
-                            <div className="flex flex-col justify-between gap-0.5">
-                              <span className="font-bold">{category}</span>
-                              <span className="text-xs">
-                                {currency(Number(value)).format()} (
-                                {pct.toFixed(2)}
-                                %)
-                              </span>
-                            </div>
-                          </div>
+                          <Badge
+                            key={_}
+                            variant="outline"
+                            className="flex items-center gap-1 font-bold"
+                            style={{ borderColor: entry.color }}
+                          >
+                            <Icon style={{ color: entry.color }} />
+                            {entry.value}
+                          </Badge>
                         );
-                      }}
-                    />
-                  }
-                />
-                <Pie
-                  data={chartData}
-                  dataKey="total"
-                  nameKey="category"
-                  innerRadius="40%"
-                  outerRadius="80%"
-                >
-                  {chartData.map((entry, _) => (
-                    <Cell
-                      key={_}
-                      fill={chartConfig[entry.category]?.color}
-                      aria-label={entry.category}
-                    />
-                  ))}
-                </Pie>
-                <Legend
-                  content={({ payload }) => {
-                    return (
-                      <div className="flex flex-wrap items-center justify-center gap-2">
-                        {payload?.map((entry, _) => {
-                          const category =
-                            entry.value as keyof typeof chartConfig;
-                          const config = chartConfig[category];
-                          const Icon = config?.icon ?? Package;
-                          return (
-                            <Badge
-                              key={_}
-                              variant="outline"
-                              className="flex items-center gap-1 font-bold"
-                              style={{ borderColor: entry.color }}
-                            >
-                              <Icon style={{ color: entry.color }} />
-                              {entry.value}
-                            </Badge>
-                          );
-                        })}
-                      </div>
-                    );
-                  }}
-                  verticalAlign="bottom"
-                />
-              </PieChart>
-            </ResponsiveContainer>
+                      })}
+                    </div>
+                  );
+                }}
+                verticalAlign="bottom"
+              />
+            </PieChart>
           </ChartContainer>
         )}
       </CardContent>

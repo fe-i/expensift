@@ -5,12 +5,6 @@
 import "./src/env.ts";
 
 /** @type {import("next").NextConfig} */
-const config = {
-  experimental: {
-    serverActions: {
-      bodySizeLimit: "50mb",
-    },
-  },
-};
+const config = {};
 
 export default config;

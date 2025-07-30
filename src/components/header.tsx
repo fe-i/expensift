@@ -78,7 +78,7 @@ export function Header() {
 
   return (
     <header
-      className="bg-background/90 fixed top-0 right-0 left-0 z-50 flex w-full items-center justify-between border-b px-4 py-3"
+      className="bg-background/90 fixed top-0 right-0 left-0 z-50 flex w-full items-center justify-between px-4 py-3"
       aria-label="Main header"
     >
       <Link href="/" aria-label="Go to home">
@@ -87,9 +87,10 @@ export function Header() {
           alt="Expensift logo"
           width={152 * 1.1}
           height={28 * 1.1}
+          priority
         />
       </Link>
-      {session?.user ? (
+      {isPending ? null : session?.user ? (
         <Sheet>
           <SheetTrigger asChild>
             <Avatar aria-label="Open user menu" className="cursor-pointer">
@@ -119,7 +120,7 @@ export function Header() {
                   className={cn(
                     "flex items-center gap-2 rounded-lg p-3 transition-all",
                     pathname === link.href
-                      ? "bg-muted cursor-not-allowed opacity-80"
+                      ? "bg-secondary cursor-default font-semibold"
                       : "hover:bg-accent hover:text-accent-foreground",
                   )}
                 >

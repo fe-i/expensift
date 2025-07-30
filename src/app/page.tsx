@@ -70,12 +70,12 @@ export default function Home() {
       </section>
       <section
         ref={featuresRef}
-        className="bg-muted flex min-h-[calc(100vh-4rem)] w-full flex-col items-center justify-center px-8 py-16"
+        className="bg-secondary flex min-h-[calc(100vh-4rem)] w-full flex-col items-center justify-center px-8 py-16"
       >
         <h2 className="mb-2 text-center text-4xl font-medium tracking-tighter md:text-5xl lg:text-6xl">
           Key Features
         </h2>
-        <p className="text-muted-foreground mx-auto max-w-xl text-center md:text-lg">
+        <p className="text-secondary-foreground mx-auto max-w-xl text-center md:text-lg">
           Expensift provides a powerful suite of features to make expense
           management effortless and accurate.
         </p>
