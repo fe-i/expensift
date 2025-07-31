@@ -11,7 +11,7 @@ export function generateMetadata({
   description = "Multipurpose expense and budget manager",
 }: MetadataOptions = {}): Metadata {
   const _title = title ? `${title} | Expensift` : "Expensift";
-  const image = "/favicon.ico";
+  const image = "/icon-192-bg.png";
 
   return {
     title: _title,
@@ -25,7 +25,7 @@ export function generateMetadata({
       "receipt scanner",
       "bill splitting",
     ],
-    authors: [{ name: "Fei" }],
+    authors: [{ name: "Fei", url: "https://github.com/fe-i/" }],
     robots: "index, follow",
     other: {
       thumbnail: image,
@@ -39,8 +39,8 @@ export function generateMetadata({
       images: [
         {
           url: image,
-          width: 400,
-          height: 400,
+          width: 192,
+          height: 192,
           alt: _title,
         },
       ],

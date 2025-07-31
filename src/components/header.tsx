@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogTrigger,
-  DialogFooter,
+  // DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
 import { LogIn, LogOut, Settings, Home } from "lucide-react";
@@ -61,17 +61,10 @@ export function Header() {
     await signIn.social(
       { provider, callbackURL: "/dashboard" },
       {
-        onError: () => {
-          toast.error("Sign in failed", {
+        onError: () =>
+          void toast.error("Sign in failed", {
             description: "Could not sign you in. Please try again.",
-          });
-        },
-        onSuccess: () => {
-          void router.push("/");
-          toast.success("Signed in", {
-            description: "You have been signed in successfully.",
-          });
-        },
+          }),
       },
     );
   }
@@ -206,7 +199,7 @@ export function Header() {
                 </Button>
               </DialogClose>
             </div>
-            <DialogFooter>
+            {/* <DialogFooter>
               <DialogDescription className="w-full text-xs">
                 By signing in, you accept the{" "}
                 <Link
@@ -226,7 +219,7 @@ export function Header() {
                 </Link>
                 .
               </DialogDescription>
-            </DialogFooter>
+            </DialogFooter> */}
           </DialogContent>
         </Dialog>
       )}
