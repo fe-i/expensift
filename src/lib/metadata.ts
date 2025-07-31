@@ -11,12 +11,17 @@ export function generateMetadata({
   description = "Multipurpose expense and budget manager",
 }: MetadataOptions = {}): Metadata {
   const _title = title ? `${title} | Expensift` : "Expensift";
-  const image = "/icon-192-bg.png";
+  const image = "/icon-192.png";
+  const bgImage = "/icon-192-bg.png";
 
   return {
     title: _title,
     description,
-    icons: [{ rel: "icon", url: image }],
+    manifest: "/manifest.json",
+    icons: [
+      { rel: "icon", url: image },
+      { rel: "apple-touch-icon", url: image },
+    ],
     keywords: [
       "expense tracker",
       "budget manager",
@@ -27,9 +32,6 @@ export function generateMetadata({
     ],
     authors: [{ name: "Fei", url: "https://github.com/fe-i/" }],
     robots: "index, follow",
-    other: {
-      thumbnail: image,
-    },
     metadataBase: new URL(env.NEXT_PUBLIC_BASE_URL),
     openGraph: {
       type: "website",
@@ -38,7 +40,7 @@ export function generateMetadata({
       locale: "en_US",
       images: [
         {
-          url: image,
+          url: bgImage,
           width: 192,
           height: 192,
           alt: _title,
@@ -49,7 +51,12 @@ export function generateMetadata({
       card: "summary",
       title: _title,
       description,
-      images: [image],
+      images: [bgImage],
+    },
+    other: {
+      "mobile-web-app-capable": "yes",
+      "apple-mobile-web-app-status-bar-style": "black-translucent",
+      "apple-mobile-web-app-title": "Expensift",
     },
   };
 }
