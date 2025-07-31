@@ -19,7 +19,7 @@ export function generateMetadata({
     description,
     manifest: "/manifest.json",
     icons: [
-      { rel: "icon", url: image },
+      { rel: "icon", url: "/favicon.ico" },
       { rel: "apple-touch-icon", url: image },
     ],
     keywords: [
