@@ -11,8 +11,8 @@ export function generateMetadata({
   description = "Multipurpose expense and budget manager",
 }: MetadataOptions = {}): Metadata {
   const _title = title ? `${title} | Expensift` : "Expensift";
-  const image = "/icon-192.png";
-  const bgImage = "/icon-192-bg.png";
+  const image = "/icons/icon-192.png";
+  const bgImage = "/icons/icon-192-bg.png";
 
   return {
     title: _title,
