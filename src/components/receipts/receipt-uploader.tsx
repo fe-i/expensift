@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,60 +30,88 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useDropzone } from "react-dropzone";
 
 const MAX_FILES = 3;
-const MAX_RECEIPTS_PER_IMAGE = 3;
-const MAX_FILE_SIZE_MB = 20;
+const MAX_RECEIPTS = 3;
+const MAX_SIZE_MB = 20;
 
 export function ReceiptUploader() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [stagedFiles, setStagedFiles] = useState<File[]>([]);
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const utils = api.useUtils();
   const { mutateAsync: createMany } = api.receipt.createMany.useMutation({
     onSuccess: async () => await utils.receipt.list.invalidate(),
   });
 
-  const handleFilesSelected = useCallback(
-    (files: FileList | null) => {
-      if (files) {
-        const filesArray = Array.from(files);
-        const totalFiles = stagedFiles.length + filesArray.length;
-        if (totalFiles > MAX_FILES) {
-          toast.error("Upload limit", {
-            description: `Max ${MAX_FILES} images at a time. Each image can have up to ${MAX_RECEIPTS_PER_IMAGE} receipts.`,
-          });
-          return;
-        }
-        const nonImageFiles = filesArray.filter(
-          (f) => !f.type.startsWith("image/"),
-        );
-        if (nonImageFiles.length > 0) {
+  const handleFiles = useCallback(
+    (files: FileList | File[] | null) => {
+      if (!files) return;
+
+      const filesArray = Array.isArray(files) ? files : Array.from(files);
+
+      const validFiles = filesArray.filter((f) => {
+        if (!f.type.startsWith("image/")) {
           toast.error("File type rejected", {
-            description: `Only image files allowed. Rejected: ${nonImageFiles.map((f) => f.name).join(", ")}`,
+            description: `Only image files allowed. Rejected: ${f.name}`,
           });
-          return;
+          return false;
         }
-        const oversizedFiles = filesArray.filter(
-          (f) => f.size > MAX_FILE_SIZE_MB * 1024 * 1024,
-        );
-        if (oversizedFiles.length > 0) {
+        if (f.type === "image/heic" || f.type === "image/heif") {
+          toast.error("Unsupported file type", {
+            description: `${f.name} is in HEIC format, which is not supported.`,
+          });
+          return false;
+        }
+        if (f.size > MAX_SIZE_MB * 1024 * 1024) {
           toast.error("File size limit", {
-            description: `Each image must be less than ${MAX_FILE_SIZE_MB}MB. Too large: ${oversizedFiles.map((f) => f.name).join(", ")}`,
+            description: `Each image must be less than ${MAX_SIZE_MB}MB. Rejected: ${f.name}`,
           });
-          return;
+          return false;
         }
-        setStagedFiles((prev) => [...prev, ...filesArray]);
+        return true;
+      });
+
+      const totalFiles = stagedFiles.length + validFiles.length;
+      if (totalFiles > MAX_FILES) {
+        toast.error("File limit exceeded", {
+          description: `Max ${MAX_FILES} images at a time. Each image can have up to ${MAX_RECEIPTS} receipts.`,
+        });
+        return;
       }
+
+      setStagedFiles((prev) => [...prev, ...validFiles]);
     },
     [stagedFiles],
   );
 
-  const removeStagedFile = (idx: number) => {
+  const handlePaste = useCallback(
+    (event: ClipboardEvent) => {
+      if (isProcessing) return;
+      handleFiles(event.clipboardData?.files ?? null);
+    },
+    [isProcessing, handleFiles],
+  );
+
+  useEffect(() => {
+    window.addEventListener("paste", handlePaste);
+    return () => {
+      window.removeEventListener("paste", handlePaste);
+    };
+  }, [handlePaste]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    disabled: isProcessing || stagedFiles.length >= MAX_FILES,
+    noDragEventsBubbling: true,
+    onDrop: useCallback(
+      (acceptedFiles: File[]) => handleFiles(acceptedFiles),
+      [handleFiles],
+    ),
+  });
+
+  const removeStagedFile = (idx: number) =>
     setStagedFiles((prev) => prev.filter((_, index) => index !== idx));
-  };
 
   const processFiles = useCallback(async () => {
     if (stagedFiles.length === 0) return;
@@ -113,68 +141,31 @@ export function ReceiptUploader() {
           errorFiles.push(file.name);
         }
       }
-      if (allReceipts.length > 0) {
-        await createMany(allReceipts);
-      }
-      if (allReceipts.length > 0) {
-        toast.success("Receipts uploaded", {
-          description: `Uploaded ${allReceipts.length} receipt${allReceipts.length === 1 ? "" : "s"}.`,
-        });
-      }
       if (errorFiles.length > 0) {
-        toast.error("Upload failed", {
+        toast.error("Processing failed", {
           description: `Could not process: ${errorFiles.join(", ")}`,
         });
+      }
+      if (allReceipts.length > 0) {
+        try {
+          await createMany(allReceipts);
+          toast.success(
+            `Receipt${allReceipts.length === 1 ? "" : "s"} uploaded`,
+            {
+              description: `Uploaded ${allReceipts.length} receipt${allReceipts.length === 1 ? "" : "s"}.`,
+            },
+          );
+        } catch {
+          toast.error("Upload failed", {
+            description: "An error occurred while uploading receipts.",
+          });
+        }
       }
     } finally {
       setStagedFiles([]);
       setIsProcessing(false);
     }
   }, [stagedFiles, createMany]);
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    handleFilesSelected(event.target.files);
-    if (event.target) {
-      event.target.value = "";
-    }
-  };
-
-  const handleButtonClick = () => fileInputRef.current?.click();
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!isProcessing) setIsDraggingOver(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDraggingOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDraggingOver(false);
-    if (isProcessing) return;
-    handleFilesSelected(e.dataTransfer.files);
-  };
-
-  const handlePaste = useCallback(
-    (event: ClipboardEvent) => {
-      if (isProcessing) return;
-      handleFilesSelected(event.clipboardData?.files ?? null);
-    },
-    [isProcessing, handleFilesSelected],
-  );
-
-  useEffect(() => {
-    window.addEventListener("paste", handlePaste);
-    return () => {
-      window.removeEventListener("paste", handlePaste);
-    };
-  }, [handlePaste]);
 
   return (
     <Card className="shadow">
@@ -184,37 +175,18 @@ export function ReceiptUploader() {
           Upload Receipt
         </CardTitle>
         <CardDescription>
-          Upload, drop, or paste one or more receipt images (max {MAX_FILES}).
+          Select, drop, or paste one or more receipt images (max {MAX_FILES}).
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div
-          onDragOver={
-            stagedFiles.length < MAX_FILES && !isProcessing
-              ? handleDragOver
-              : undefined
-          }
-          onDragLeave={
-            stagedFiles.length < MAX_FILES && !isProcessing
-              ? handleDragLeave
-              : undefined
-          }
-          onDrop={
-            stagedFiles.length < MAX_FILES && !isProcessing
-              ? handleDrop
-              : undefined
-          }
-          onClick={
-            stagedFiles.length < MAX_FILES && !isProcessing
-              ? handleButtonClick
-              : undefined
-          }
+          {...getRootProps()}
           className={cn(
             "border-muted-foreground flex h-72 flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed text-center transition-all",
-            isDraggingOver && "bg-muted",
-            stagedFiles.length < MAX_FILES && "cursor-pointer",
-            (stagedFiles.length >= MAX_FILES || isProcessing) &&
-              "cursor-not-allowed",
+            isDragActive && "bg-muted",
+            stagedFiles.length < MAX_FILES
+              ? "cursor-pointer"
+              : "cursor-not-allowed",
           )}
         >
           {isProcessing ? (
@@ -255,23 +227,19 @@ export function ReceiptUploader() {
             ))
           ) : (
             <div className="text-muted-foreground flex flex-col items-center justify-center gap-2">
-              <ImageIcon className="h-8 w-8" />
+              <ImageIcon className="size-8" />
               <p className="flex items-center justify-center text-sm">
-                {isDraggingOver
+                {isDragActive
                   ? "Drop image here."
-                  : "Drag & drop, paste, or click to upload."}
+                  : "Drag & drop, paste, or click to select."}
               </p>
             </div>
           )}
           <Input
+            {...getInputProps()}
             aria-label="Upload receipt image"
-            type="file"
             accept="image/*"
-            className="hidden"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            disabled={isProcessing}
-            multiple
+            disabled={isProcessing || stagedFiles.length >= MAX_FILES}
           />
         </div>
       </CardContent>
@@ -284,14 +252,15 @@ export function ReceiptUploader() {
           {isProcessing ? (
             <>
               <Loader2 className="animate-spin" />
-              <span>Processing...</span>
+              Processing...
             </>
           ) : (
             <>
               <FileUp />
+              Process{" "}
               {stagedFiles.length > 1
-                ? `Process ${stagedFiles.length} Receipts`
-                : "Process Receipt"}
+                ? `${stagedFiles.length} Receipts`
+                : "Receipt"}
             </>
           )}
         </Button>
