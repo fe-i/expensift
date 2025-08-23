@@ -116,7 +116,8 @@ export function ReceiptsList() {
     const mergeLineItems = (items: LineItem[]): LineItem[] => {
       const merged: Record<string, LineItem> = {};
       for (const item of items) {
-        const key = `${item.name}_${item.unitPrice}`;
+        const assignedToKey = (item.assignedTo ?? []).sort().join(",");
+        const key = `${item.name}_${item.unitPrice}_${assignedToKey}`;
         if (merged[key]) merged[key].quantity += item.quantity;
         else merged[key] = { ...item };
       }

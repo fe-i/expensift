@@ -62,6 +62,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useEffect } from "react";
 
 export function ReceiptDialog({
   data,
@@ -112,6 +113,14 @@ export function ReceiptDialog({
     resolver: zodResolver(zodReceiptSchema),
     defaultValues: setDefaultValues(data),
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset(setDefaultValues(data));
+    } else {
+      form.reset(setDefaultValues());
+    }
+  }, [data, open, form]);
 
   const taxType = useWatch({ control: form.control, name: "taxType" });
   const tipType = useWatch({ control: form.control, name: "tipType" });
