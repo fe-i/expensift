@@ -17,7 +17,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@genkit-ai/googleai": "^1.15.5",
+    "@genkit-ai/google-genai": "^1.41.0",
     "@genkit-ai/next": "^1.15.5",
     "@hookform/resolvers": "^5.2.1",
     "@radix-ui/react-alert-dialog": "^1.1.14",
@@ -42,7 +42,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "currency.js": "^2.0.4",
-    "genkit": "^1.15.5",
+    "genkit": "^1.41.0",
     "lucide-react": "^0.532.0",
     "mongoose": "^8.16.5",
     "next": "^15.2.6",
